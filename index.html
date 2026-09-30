@@ -20,7 +20,7 @@
     content: '';
     position: fixed;
     top: 0; left: 0; right: 0; bottom: 0;
-    background: rgba(10, 10, 25, 0.65);
+    background: rgba(10, 10, 25, 0.3);
     z-index: -1;
   }
   h1 { color: #ffb7c5; font-size: 28px; margin-bottom: 4px; text-shadow: 2px 2px 4px #000; }
@@ -158,7 +158,7 @@ const T = {
     musicOn: "音楽を鳴らす", musicOff: "音楽を止める",
     mapDays: ["月", "火", "水", "木", "金", "土", "日", "?"],
     win: "を倒した！ 印は巻物に織り込まれた。",
-    startLevel: (day, name, el) => `⚔️ <b>${day}: ${name}</b>（${el}）が道を阻む。<br><b>五つの正確な打撃</b>が必要。外せば鬼は二、三の印を取り戻す。`,
+    startLevel: (day, name, el) => `⚔️ <b>${day}: ${name}</b>（${el}）が道を阻む。<br><b>五つの正確な打撃</b>が必要。外せば鬼は印を取り戻す。`,
     hitOk: (n) => `⚔️ <b>正確な一撃！</b> 壊した印: <b>${n}/5</b>。`,
     miss: (n) => `💨 <b>外した！</b> 鬼は <b>${n} の印</b>を取り戻す。`,
     regen: (a, b) => `🔥 鬼が印を取り戻している… (${a}/${b})`,
@@ -173,7 +173,7 @@ const T = {
     musicOn: "Включить музыку", musicOff: "Выключить музыку",
     mapDays: ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс", "?"],
     win: " побеждён! Печати вплетены в свиток.",
-    startLevel: (day, name, el) => `⚔️ <b>${day}: ${name}</b> (${el}) преграждает путь.<br>Нужно нанести <b>5 точных ударов</b>. Промах — демон восстановит 2–3 печати.`,
+    startLevel: (day, name, el) => `⚔️ <b>${day}: ${name}</b> (${el}) преграждает путь.<br>Нужно нанести <b>5 точных ударов</b>. Промах — демон восстановит 1–2 печати.`,
     hitOk: (n) => `⚔️ <b>Точный удар!</b> Сломано печатей: <b>${n}/5</b>.`,
     miss: (n) => `💨 <b>Промах!</b> Демон восстанавливает <b>${n} печати</b>.`,
     regen: (a, b) => `🔥 Демон восстанавливает печать... (${a}/${b})`,
@@ -188,7 +188,7 @@ const T = {
     musicOn: "Play Music", musicOff: "Stop Music",
     mapDays: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun", "?"],
     win: " defeated! The seals are woven into the scroll.",
-    startLevel: (day, name, el) => `⚔️ <b>${day}: ${name}</b> (${el}) blocks the path.<br>You need <b>5 precise strikes</b>. A miss — the demon restores 2–3 seals.`,
+    startLevel: (day, name, el) => `⚔️ <b>${day}: ${name}</b> (${el}) blocks the path.<br>You need <b>5 precise strikes</b>. A miss — the demon restores 1–2 seals.`,
     hitOk: (n) => `⚔️ <b>Precise strike!</b> Broken seals: <b>${n}/5</b>.`,
     miss: (n) => `💨 <b>Miss!</b> The demon restores <b>${n} seals</b>.`,
     regen: (a, b) => `🔥 The demon restores a seal... (${a}/${b})`,
@@ -222,6 +222,9 @@ const demons = [
     name: { jp: "富士の龍", ru: "Фудзи-дракон", en: "Fuji Dragon" },
     poem: { jp: "山は立つ —\n我も立つ。\n我らは共に永遠。", ru: "Гора стоит —\nи я стою.\nМы оба — вечны.", en: "The mountain stands —\nand I stand.\nWe are both eternal." }}
 ];
+
+// Нарастающая сложность: 35% → 70%
+const missRates = [0.35, 0.40, 0.45, 0.50, 0.55, 0.60, 0.70];
 
 let lang = "jp";
 let level = 0;
@@ -312,9 +315,9 @@ function startLevel() {
 function hit() {
   if (brokenSeals >= sealsToWin) return;
   const l = T[lang];
-  const miss = Math.random() < 0.8; // 80% промаха
+  const miss = Math.random() < missRates[level];
   if (miss) {
-    const regenAmount = Math.random() < 0.5 ? 2 : 3;
+    const regenAmount = Math.random() < 0.5 ? 1 : 2;
     brokenSeals = Math.max(0, brokenSeals - regenAmount);
     log(l.miss(regenAmount));
     startRegen(regenAmount);
