@@ -2,282 +2,484 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no">
-<title>富士ストライク</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>富士撃 — 七つの巻物</title>
 <style>
-*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-html,body{width:100%;height:100%;background:#0a0418;overflow:hidden;font-family:sans-serif;color:#fff;user-select:none;touch-action:manipulation}
-#c{display:block;width:100vw;height:100vh;touch-action:none}
-#hud{position:fixed;top:10px;left:10px;right:10px;display:flex;justify-content:space-between;font-size:14px;font-weight:bold;pointer-events:none;z-index:5}
-#hud div{background:rgba(0,0,0,.7);padding:6px 12px;border-radius:10px;border:2px solid #d4a017;color:#ffe0f0}
-#btns{position:fixed;bottom:20px;left:0;right:0;display:flex;justify-content:space-between;padding:0 20px;z-index:10}
-.grp{display:flex;gap:12px}
-.b{width:64px;height:64px;border-radius:50%;background:rgba(212,160,23,.85);border:3px solid #ffd966;color:#fff;font-size:26px;font-weight:bold;display:flex;align-items:center;justify-content:center;cursor:pointer;user-select:none;touch-action:none}
-.b:active{transform:scale(.9);background:#ff9e20}
-#atk{background:rgba(255,107,158,.9);border-color:#ff9ec7}
-#start{position:fixed;inset:0;background:rgba(5,2,10,.98);display:flex;flex-direction:column;justify-content:center;align-items:center;z-index:100;text-align:center;padding:20px}
-h1{color:#d4a017;font-size:30px;margin-bottom:12px;text-shadow:0 0 20px #d4a017}
-p{font-size:14px;color:#ffe0f0;margin-bottom:20px;line-height:1.7}
-#go{background:linear-gradient(#d4a017,#a06010);color:#fff;border:2px solid #ffd966;border-radius:26px;padding:16px 40px;font-size:18px;font-weight:bold;cursor:pointer;box-shadow:0 5px 0 #604010}
-#go:active{transform:translateY(3px);box-shadow:0 2px 0 #604010}
-#toast{position:fixed;top:80px;left:50%;transform:translateX(-50%);background:rgba(0,0,0,.9);border:2px solid #ffd966;border-radius:12px;padding:10px 20px;font-size:14px;color:#ffd966;font-weight:bold;z-index:50;opacity:0;transition:.3s;pointer-events:none;white-space:nowrap}
-#toast.show{opacity:1}
+  body {
+    background: #1a1a2e;
+    color: #eee;
+    font-family: 'Yu Mincho', 'Georgia', serif;
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 15px;
+    text-align: center;
+  }
+  h1 { color: #ffb7c5; font-size: 28px; margin-bottom: 4px; }
+  .subtitle { color: #aaa; font-size: 14px; margin-bottom: 10px; }
+  #langBar {
+    display: flex;
+    justify-content: flex-end;
+    gap: 6px;
+    margin-bottom: 10px;
+  }
+  .langBtn {
+    background: #333;
+    color: #ccc;
+    border: 1px solid #666;
+    padding: 6px 14px;
+    font-size: 14px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .langBtn.active { background: #ffb7c5; color: #1a1a2e; border-color: #fff; }
+  #demon { font-size: 64px; margin: 20px 0; transition: opacity 0.5s; }
+  #demonName { font-size: 18px; color: #ffb7c5; margin-bottom: 10px; min-height: 24px; }
+  #seals {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin: 20px 0;
+  }
+  .seal {
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    border: 3px solid #888;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+    transition: all 0.3s;
+  }
+  .seal.active { background: #ff4444; border-color: #ff8888; }
+  .seal.broken { background: #333; border-color: #555; color: #555; }
+  button {
+    background: #ffb7c5;
+    border: none;
+    padding: 12px 24px;
+    font-size: 17px;
+    border-radius: 8px;
+    cursor: pointer;
+    margin: 5px;
+    font-family: inherit;
+  }
+  button:disabled { background: #555; cursor: not-allowed; }
+  #log {
+    background: #0f0f1a;
+    padding: 15px;
+    border-radius: 8px;
+    margin: 20px 0;
+    min-height: 70px;
+    text-align: left;
+    font-size: 15px;
+    line-height: 1.6;
+  }
+  #scroll {
+    background: #f5e6c8;
+    color: #2a1a0a;
+    padding: 30px;
+    border-radius: 5px;
+    margin: 20px 0;
+    font-style: italic;
+    display: none;
+    line-height: 2;
+    min-height: 120px;
+    text-align: center;
+    font-size: 18px;
+  }
+  #scroll .line {
+    opacity: 0;
+    transition: opacity 1.2s;
+  }
+  #scroll .line.visible { opacity: 1; }
+  #map {
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+    margin: 15px 0;
+    flex-wrap: wrap;
+  }
+  .map-point {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: #333;
+    border: 2px solid #666;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    transition: all 0.4s;
+  }
+  .map-point.done { background: #ffb7c5; border-color: #fff; color: #1a1a2e; }
+  .map-point.current { border-color: #ffb7c5; box-shadow: 0 0 10px #ffb7c5; }
+  .map-point.secret { border-color: #888; color: #888; font-size: 16px; }
 </style>
 </head>
 <body>
-<canvas id="c"></canvas>
-<div id="hud">
-<div>❤ <span id="hp">100</span></div>
-<div>⚔ <span id="kl">0</span>/10</div>
+
+<h1>富士撃</h1>
+<div class="subtitle" id="subtitle">七つの巻物</div>
+
+<div id="langBar">
+  <button id="langToggle" class="langBtn active">日本語</button>
 </div>
-<div id="btns">
-<div class="grp">
-<div class="b" id="left">◀</div>
-<div class="b" id="right">▶</div>
-</div>
-<div class="grp">
-<div class="b" id="atk">⚔</div>
-</div>
-</div>
-<div id="start">
-<h1>富士ストライク</h1>
-<p>曜日の鬼を倒せ！<br>◀ ▶ で移動、⚔ で攻撃<br>10体倒せば勝利</p>
-<button id="go">▶ 開始</button>
-</div>
-<div id="toast"></div>
+
+<div id="map"></div>
+
+<div id="demon">👹</div>
+<div id="demonName"></div>
+<div id="seals"></div>
+
+<div id="log"></div>
+
+<button id="hitBtn"></button>
+<button id="nextBtn" style="display:none"></button>
+<button id="musicBtn"></button>
+
+<div id="scroll"></div>
+
 <script>
-var canvas=document.getElementById('c');
-var ctx=canvas.getContext('2d');
-var W,H,GY;
-var hp=100,kills=0,enemies=[],parts=[],spawnT=30,tick=0,facing=1;
-var px={x:200},keys={l:false,r:false};
-var playing=false,over=false;
+// ==== ЯЗЫКОВЫЕ ДАННЫЕ ====
+const T = {
+  jp: {
+    subtitle: "七つの巻物",
+    hit: "斬る",
+    next: "次へ",
+    musicOn: "音楽を鳴らす",
+    musicOff: "音楽を止める",
+    mapDays: ["月", "火", "水", "木", "金", "土", "日", "?"],
+    win: "を倒した！ 印は巻物に織り込まれた。",
+    startLevel: (day, name, el) => `⚔️ <b>${day}: ${name}</b>（${el}）が道を阻む。<br><b>五つの正確な打撃</b>が必要。外せば鬼は二、三の印を取り戻す。`,
+    hitOk: (n) => `⚔️ <b>正確な一撃！</b> 壊した印: <b>${n}/5</b>。`,
+    miss: (n) => `💨 <b>外した！</b> 鬼は <b>${n} の印</b>を取り戻す。`,
+    regen: (a, b) => `🔥 鬼が印を取り戻している… (${a}/${b})`,
+    scrollTitle: (i, day, name) => `巻物 ${i}: ${day}、${name}`,
+    finalTitle: "最後の巻物",
+    finalPoem: "富士は立ち —\n我も立つ。\n桜は咲き —\n我も咲く。\n我は負けぬ。",
+    allDone: "✨ <b>七つの巻物が全て集まった！</b><br>しかし…八つ目の巻物が現れた。"
+  },
+  ru: {
+    subtitle: "Семь свитков",
+    hit: "Ударить",
+    next: "Дальше",
+    musicOn: "Включить музыку",
+    musicOff: "Выключить музыку",
+    mapDays: ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс", "?"],
+    win: " побеждён! Печати вплетены в свиток.",
+    startLevel: (day, name, el) => `⚔️ <b>${day}: ${name}</b> (${el}) преграждает путь.<br>Нужно нанести <b>5 точных ударов</b>. Промах — демон восстановит 2–3 печати.`,
+    hitOk: (n) => `⚔️ <b>Точный удар!</b> Сломано печатей: <b>${n}/5</b>.`,
+    miss: (n) => `💨 <b>Промах!</b> Демон восстанавливает <b>${n} печати</b>.`,
+    regen: (a, b) => `🔥 Демон восстанавливает печать... (${a}/${b})`,
+    scrollTitle: (i, day, name) => `Свиток ${i}: ${day}, ${name}`,
+    finalTitle: "Последний свиток",
+    finalPoem: "Фудзи стоит —\nи я стою.\nСакура цветёт —\nи я цвету.\nМеня не победить.",
+    allDone: "✨ <b>Все семь свитков собраны!</b><br>Но появился восьмой свиток…"
+  },
+  en: {
+    subtitle: "Seven Scrolls",
+    hit: "Strike",
+    next: "Next",
+    musicOn: "Play Music",
+    musicOff: "Stop Music",
+    mapDays: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun", "?"],
+    win: " defeated! The seals are woven into the scroll.",
+    startLevel: (day, name, el) => `⚔️ <b>${day}: ${name}</b> (${el}) blocks the path.<br>You need <b>5 precise strikes</b>. A miss — the demon restores 2–3 seals.`,
+    hitOk: (n) => `⚔️ <b>Precise strike!</b> Broken seals: <b>${n}/5</b>.`,
+    miss: (n) => `💨 <b>Miss!</b> The demon restores <b>${n} seals</b>.`,
+    regen: (a, b) => `🔥 The demon restores a seal... (${a}/${b})`,
+    scrollTitle: (i, day, name) => `Scroll ${i}: ${day}, ${name}`,
+    finalTitle: "The Last Scroll",
+    finalPoem: "Fuji stands —\nand I stand.\nSakura blooms —\nand I bloom.\nI cannot be defeated.",
+    allDone: "✨ <b>All seven scrolls are gathered!</b><br>But an eighth scroll has appeared…"
+  }
+};
 
-function resize(){
-  canvas.width=window.innerWidth;
-  canvas.height=window.innerHeight;
-  W=canvas.width;H=canvas.height;GY=H-100;
+// ==== ДЕМОНЫ ====
+const demons = [
+  { day: 0, emoji: "👹", el: { jp: "火", ru: "Огонь", en: "Fire" },
+    name: { jp: "鬼の鍛冶屋", ru: "Они-кузнец", en: "Oni Blacksmith" },
+    poem: {
+      jp: "火花は飛び —\n我心には\n冷たい夜明け。",
+      ru: "Искры летят —\nно в сердце моём\nхолодный рассвет.",
+      en: "Sparks fly —\nyet in my heart\na cold dawn."
+    }},
+  { day: 1, emoji: "❄️", el: { jp: "氷", ru: "Лёд", en: "Ice" },
+    name: { jp: "雪女", ru: "Юки-онна", en: "Yuki-onna" },
+    poem: {
+      jp: "氷は永遠ではない —\n春は来る\n雪の夜にも。",
+      ru: "Лёд не вечен —\nвесна придёт\nдаже в снежную ночь.",
+      en: "Ice is not eternal —\nspring will come\neven in a snowy night."
+    }},
+  { day: 2, emoji: "🌪️", el: { jp: "風", ru: "Ветер", en: "Wind" },
+    name: { jp: "天狗の風", ru: "Тэнгу-ветер", en: "Tengu Wind" },
+    poem: {
+      jp: "風は払う\n余分なものを —\n道だけが残る。",
+      ru: "Ветер сдувает\nвсё лишнее —\nостаётся путь.",
+      en: "The wind sweeps away\neverything extra —\nonly the path remains."
+    }},
+  { day: 3, emoji: "💧", el: { jp: "水", ru: "Вода", en: "Water" },
+    name: { jp: "河童", ru: "Каппа-река", en: "Kappa of the River" },
+    poem: {
+      jp: "川は争わない\n石と —\nそれを回り込む。",
+      ru: "Река не спорит\nс камнем —\nона его обходит.",
+      en: "The river does not argue\nwith the stone —\nit flows around it."
+    }},
+  { day: 4, emoji: "🦊", el: { jp: "狐火", ru: "Огонь", en: "Foxfire" },
+    name: { jp: "狐火", ru: "Кицунэ-огнь", en: "Kitsune Fire" },
+    poem: {
+      jp: "三つの尾は嘘をつく、\nしかし真実は一つ —\n我が刀。",
+      ru: "Три хвоста лгут,\nно правда одна —\nмой меч.",
+      en: "Three tails lie,\nbut the truth is one —\nmy blade."
+    }},
+  { day: 5, emoji: "👻", el: { jp: "闇", ru: "Тьма", en: "Darkness" },
+    name: { jp: "浪人の亡霊", ru: "Ронин-призрак", en: "Ronin Ghost" },
+    poem: {
+      jp: "過去の影は\n我を縛らない —\n我は前へ進む。",
+      ru: "Тень прошлого\nне держит меня —\nя иду вперёд.",
+      en: "The shadow of the past\ndoes not hold me —\nI walk forward."
+    }},
+  { day: 6, emoji: "🐉", el: { jp: "地", ru: "Земля", en: "Earth" },
+    name: { jp: "富士の龍", ru: "Фудзи-дракон", en: "Fuji Dragon" },
+    poem: {
+      jp: "山は立つ —\n我も立つ。\n我らは共に永遠。",
+      ru: "Гора стоит —\nи я стою.\nМы оба — вечны.",
+      en: "The mountain stands —\nand I stand.\nWe are both eternal."
+    }}
+];
+
+// ==== СОСТОЯНИЕ ====
+let lang = "jp";
+let level = 0;
+let brokenSeals = 0;
+let regenTimer = null;
+
+const maxSeals = 5;
+const sealsToWin = 5;
+
+// ==== ЭЛЕМЕНТЫ ====
+const demonEl = document.getElementById('demon');
+const demonNameEl = document.getElementById('demonName');
+const sealsEl = document.getElementById('seals');
+const logEl = document.getElementById('log');
+const hitBtn = document.getElementById('hitBtn');
+const nextBtn = document.getElementById('nextBtn');
+const scrollEl = document.getElementById('scroll');
+const mapEl = document.getElementById('map');
+const musicBtn = document.getElementById('musicBtn');
+const subtitleEl = document.getElementById('subtitle');
+const langToggle = document.getElementById('langToggle');
+
+// ==== ОТРИСОВКА ====
+function renderMap() {
+  mapEl.innerHTML = '';
+  const days = T[lang].mapDays;
+  for (let i = 0; i < 8; i++) {
+    const point = document.createElement('div');
+    point.className = 'map-point';
+    if (i < level) point.classList.add('done');
+    if (i === level) point.classList.add('current');
+    if (i === 7) point.classList.add('secret');
+    point.textContent = i < level ? '巻' : days[i];
+    mapEl.appendChild(point);
+  }
 }
-window.addEventListener('resize',resize);
-resize();
 
-function showToast(m){
-  var t=document.getElementById('toast');
-  t.textContent=m;t.classList.add('show');
-  setTimeout(function(){t.classList.remove('show')},1500);
+function renderSeals() {
+  sealsEl.innerHTML = '';
+  for (let i = 0; i < maxSeals; i++) {
+    const seal = document.createElement('div');
+    seal.className = 'seal';
+    if (i < brokenSeals) {
+      seal.classList.add('broken');
+      seal.textContent = '✕';
+    } else {
+      seal.classList.add('active');
+      seal.textContent = '印';
+    }
+    sealsEl.appendChild(seal);
+  }
 }
 
-function updHUD(){
-  document.getElementById('hp').textContent=Math.max(0,Math.round(hp));
-  document.getElementById('kl').textContent=kills;
+function log(text) { logEl.innerHTML = text; }
+
+function updateUI() {
+  subtitleEl.textContent = T[lang].subtitle;
+  hitBtn.textContent = T[lang].hit;
+  nextBtn.textContent = T[lang].next;
+  musicBtn.textContent = musicPlaying ? T[lang].musicOff : T[lang].musicOn;
+  renderMap();
 }
 
-function reset(){
-  hp=100;kills=0;enemies=[];parts=[];spawnT=30;px.x=W/2-25;over=false;
-  updHUD();
-}
-
-function spawn(){
-  var side=Math.random()<0.5?-1:1;
-  var hpMax=30+kills*3;
-  enemies.push({
-    x:side===1?W+30:-60,
-    vx:side*-1.3,
-    hp:hpMax,mhp:hpMax,
-    dmg:8,at:0,hf:0,bp:Math.random()*6
+// ==== ПОСТЕПЕННЫЙ СТИХ ====
+function showScroll(title, poem) {
+  scrollEl.style.display = 'block';
+  scrollEl.innerHTML = `<b>${title}</b><br><br>`;
+  const lines = poem.split('\n');
+  lines.forEach((line, i) => {
+    const div = document.createElement('div');
+    div.className = 'line';
+    div.textContent = line;
+    scrollEl.appendChild(div);
+    setTimeout(() => div.classList.add('visible'), 800 + i * 1200);
   });
 }
 
-function attack(){
-  if(!playing)return;
-  for(var i=0;i<enemies.length;i++){
-    var e=enemies[i];
-    if(e.dead)continue;
-    var dist=Math.abs(e.x+22-(px.x+25));
-    if(dist<100){
-      e.hp-=25+Math.random()*10;
-      e.hf=8;
-      for(var j=0;j<8;j++){
-        parts.push({x:e.x+22,y:GY-30,vx:(Math.random()-0.5)*8,vy:(Math.random()-0.5)*8-2,life:30,c:'#ff6ba6'});
-      }
-      if(e.hp<=0){
-        e.dead=true;kills++;
-        showToast('倒した！');
-        updHUD();
-      }
+// ==== БОЙ ====
+function startLevel() {
+  const d = demons[level];
+  const l = T[lang];
+  demonEl.textContent = d.emoji;
+  demonEl.style.opacity = 1;
+  demonNameEl.textContent = d.name[lang];
+  brokenSeals = 0;
+  if (regenTimer) clearInterval(regenTimer);
+  scrollEl.style.display = 'none';
+  scrollEl.innerHTML = '';
+  nextBtn.style.display = 'none';
+  hitBtn.style.display = 'inline-block';
+  hitBtn.disabled = false;
+  renderSeals();
+  renderMap();
+  const day = l.mapDays[d.day];
+  log(l.startLevel(day, d.name[lang], d.el[lang]));
+}
+
+function hit() {
+  if (brokenSeals >= sealsToWin) return;
+  const l = T[lang];
+  const miss = Math.random() < 0.3;
+
+  if (miss) {
+    const regenAmount = Math.random() < 0.5 ? 2 : 3;
+    brokenSeals = Math.max(0, brokenSeals - regenAmount);
+    log(l.miss(regenAmount));
+    startRegen(regenAmount);
+  } else {
+    brokenSeals++;
+    log(l.hitOk(brokenSeals));
+    if (regenTimer) { clearInterval(regenTimer); regenTimer = null; }
+  }
+  renderSeals();
+  if (brokenSeals >= sealsToWin) win();
+}
+
+function startRegen(amount) {
+  if (regenTimer) clearInterval(regenTimer);
+  const l = T[lang];
+  let restored = 0;
+  regenTimer = setInterval(() => {
+    if (restored >= amount) {
+      clearInterval(regenTimer); regenTimer = null; return;
     }
-  }
+    brokenSeals = Math.max(0, brokenSeals - 1);
+    restored++;
+    renderSeals();
+    log(l.regen(restored, amount));
+    if (brokenSeals >= sealsToWin) win();
+  }, 1500);
 }
 
-function draw(){
-  tick++;
-  var g=ctx.createLinearGradient(0,0,0,H);
-  g.addColorStop(0,'#1a0a2e');
-  g.addColorStop(0.6,'#3a1a5e');
-  g.addColorStop(1,'#6a2a5e');
-  ctx.fillStyle=g;
-  ctx.fillRect(0,0,W,H);
-  ctx.fillStyle='#fff';
-  ctx.beginPath();ctx.arc(W-100,100,40,0,7);ctx.fill();
-  ctx.fillStyle='#1a0a2e';
-  ctx.beginPath();ctx.arc(W-112,88,36,0,7);ctx.fill();
-  var m=ctx.createLinearGradient(0,100,0,GY);
-  m.addColorStop(0,'#9a7ac0');
-  m.addColorStop(1,'#2a1a4e');
-  ctx.fillStyle=m;
-  ctx.beginPath();
-  ctx.moveTo(0,GY);
-  ctx.lineTo(W/2-100,140);
-  ctx.lineTo(W/2,90);
-  ctx.lineTo(W/2+100,140);
-  ctx.lineTo(W,GY);
-  ctx.fill();
-  ctx.fillStyle='#fff';
-  ctx.beginPath();
-  ctx.moveTo(W/2-70,170);
-  ctx.lineTo(W/2,90);
-  ctx.lineTo(W/2+70,170);
-  ctx.lineTo(W/2+45,190);
-  ctx.quadraticCurveTo(W/2,170,W/2-45,190);
-  ctx.fill();
-  ctx.fillStyle='#1a0a2a';
-  ctx.fillRect(0,GY,W,H-GY);
-  ctx.fillStyle='#3a2a5a';
-  ctx.fillRect(0,GY,W,4);
-  var bob=Math.sin(tick*0.1)*2;
-  var cx=px.x+25,by=GY-75+bob;
-  ctx.fillStyle='rgba(0,0,0,.4)';
-  ctx.beginPath();ctx.ellipse(cx,GY+5,26,7,0,0,7);ctx.fill();
-  ctx.fillStyle='#2c4a80';
-  ctx.fillRect(cx-18,by+50,36,22);
-  ctx.fillStyle='#d4a017';
-  ctx.fillRect(cx-20,by+58,40,6);
-  ctx.fillStyle='#ffdcc0';
-  ctx.beginPath();ctx.arc(cx,by+22,24,0,7);ctx.fill();
-  ctx.fillStyle='#0a0a1a';
-  ctx.beginPath();ctx.arc(cx,by+18,24,Math.PI,0);ctx.fill();
-  ctx.fillStyle='#fff';
-  ctx.beginPath();ctx.arc(cx-9,by+26,6,0,7);ctx.arc(cx+9,by+26,6,0,7);ctx.fill();
-  ctx.fillStyle='#000';
-  ctx.beginPath();ctx.arc(cx-9+facing,by+26,3,0,7);ctx.arc(cx+9+facing,by+26,3,0,7);ctx.fill();
-  ctx.fillStyle='#c0c0d0';
-  ctx.fillRect(cx+(facing===1?20:-25),by+40,5*facing,40);
-  ctx.fillStyle='#d4a017';
-  ctx.fillRect(cx+(facing===1?15:-20),by+35,10,8);
-  for(var i=0;i<enemies.length;i++){
-    var e=enemies[i];
-    if(e.dead)continue;
-    var eb=Math.sin(tick*0.12+e.bp)*4;
-    var ec=e.x+22,ey=GY-30+eb;
-    ctx.fillStyle='rgba(0,0,0,.4)';
-    ctx.beginPath();ctx.ellipse(ec,GY+5,22,6,0,0,7);ctx.fill();
-    ctx.fillStyle=e.hf>0?'#fff':'#c0392b';
-    ctx.beginPath();ctx.arc(ec,ey,26,0,7);ctx.fill();
-    ctx.fillStyle=e.hf>0?'#fff':'#e67e22';
-    ctx.beginPath();ctx.ellipse(ec,ey+10,18,10,0,0,7);ctx.fill();
-    ctx.fillStyle='#fff';
-    ctx.beginPath();
-    ctx.moveTo(ec-12,ey-18);ctx.lineTo(ec-18,ey-32);ctx.lineTo(ec-5,ey-20);ctx.fill();
-    ctx.beginPath();
-    ctx.moveTo(ec+12,ey-18);ctx.lineTo(ec+18,ey-32);ctx.lineTo(ec+5,ey-20);ctx.fill();
-    ctx.fillStyle='#fff';
-    ctx.beginPath();ctx.arc(ec-8,ey-4,6,0,7);ctx.arc(ec+8,ey-4,6,0,7);ctx.fill();
-    ctx.fillStyle='#000';
-    ctx.beginPath();ctx.arc(ec-8,ey-4,3.5,0,7);ctx.arc(ec+8,ey-4,3.5,0,7);ctx.fill();
-    ctx.fillStyle='#000';
-    ctx.fillRect(ec-20,ey-45,40,5);
-    ctx.fillStyle='#ff4a4a';
-    ctx.fillRect(ec-20,ey-45,40*(e.hp/e.mhp),5);
-  }
-  for(var i=0;i<parts.length;i++){
-    var p=parts[i];
-    p.x+=p.vx;p.y+=p.vy;p.vy+=0.3;p.life--;
-    ctx.globalAlpha=p.life/30;
-    ctx.fillStyle=p.c;
-    ctx.beginPath();ctx.arc(p.x,p.y,3,0,7);ctx.fill();
-  }
-  ctx.globalAlpha=1;
+function win() {
+  if (regenTimer) { clearInterval(regenTimer); regenTimer = null; }
+  hitBtn.disabled = true;
+  const d = demons[level];
+  const l = T[lang];
+  demonEl.textContent = '🌸';
+  log(`🎉 <b>${d.name[lang]}</b>${l.win}`);
+
+  const day = l.mapDays[d.day];
+  showScroll(l.scrollTitle(level + 1, day, d.name[lang]), d.poem[lang]);
+  nextBtn.style.display = 'inline-block';
 }
 
-function update(){
-  if(!playing||over)return;
-  if(keys.l){px.x-=5;facing=-1;}
-  if(keys.r){px.x+=5;facing=1;}
-  px.x=Math.max(0,Math.min(W-50,px.x));
-  spawnT--;
-  if(spawnT<=0&&kills<10&&enemies.length<3){
-    spawn();
-    spawnT=70;
+function nextLevel() {
+  level++;
+  if (level >= demons.length) {
+    demonEl.textContent = '🏔️';
+    demonNameEl.textContent = '';
+    hitBtn.style.display = 'none';
+    nextBtn.style.display = 'none';
+    log(T[lang].allDone);
+    showScroll(T[lang].finalTitle, T[lang].finalPoem);
+    renderMap();
+    return;
   }
-  for(var i=0;i<enemies.length;i++){
-    var e=enemies[i];
-    if(e.dead)continue;
-    e.x+=e.vx;
-    if(e.hf>0)e.hf--;
-    if(Math.abs(e.x+22-(px.x+25))<50&&e.at<=0){
-      e.at=60;
-      hp-=e.dmg;
-      updHUD();
-      if(hp<=0){
-        hp=0;over=true;playing=false;
-        showToast('敗北…');
-      }
-    }
-    if(e.at>0)e.at--;
-  }
-  enemies=enemies.filter(function(e){return !e.dead&&e.x>-100&&e.x<W+100;});
-  for(var i=0;i<parts.length;i++){
-    var p=parts[i];
-    p.x+=p.vx;p.y+=p.vy;p.vy+=0.3;p.life--;
-  }
-  parts=parts.filter(function(p){return p.life>0;});
-  if(kills>=10&&!over){
-    over=true;playing=false;
-    showToast('🌸 勝利！ 🌸');
-  }
+  startLevel();
 }
 
-function loop(){
-  update();
-  draw();
-  requestAnimationFrame(loop);
+// ==== МУЗЫКА ====
+let audioCtx = null;
+let musicPlaying = false;
+let musicTimer = null;
+const scale = [0, 2, 5, 7, 9];
+const baseFreq = 261.63;
+
+function noteFreq(s) { return baseFreq * Math.pow(2, s / 12); }
+
+function playNote(freq, dur, vol) {
+  if (!audioCtx) return;
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  osc.type = 'sine';
+  osc.frequency.value = freq;
+  gain.gain.setValueAtTime(0, audioCtx.currentTime);
+  gain.gain.linearRampToValueAtTime(vol, audioCtx.currentTime + 0.1);
+  gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + dur);
+  osc.connect(gain);
+  gain.connect(audioCtx.destination);
+  osc.start();
+  osc.stop(audioCtx.currentTime + dur);
 }
 
-document.getElementById('go').addEventListener('click',function(){
-  document.getElementById('start').style.display='none';
-  resize();
-  reset();
-  playing=true;
+function playPhrase() {
+  if (!musicPlaying) return;
+  const notesCount = 2 + Math.floor(Math.random() * 2);
+  for (let i = 0; i < notesCount; i++) {
+    setTimeout(() => {
+      if (!musicPlaying) return;
+      const s = scale[Math.floor(Math.random() * scale.length)];
+      const oct = Math.random() < 0.3 ? 12 : 0;
+      playNote(noteFreq(s + oct), 3, 0.08);
+    }, i * 1200);
+  }
+  musicTimer = setTimeout(playPhrase, notesCount * 1200 + 4000);
+}
+
+musicBtn.addEventListener('click', () => {
+  if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  if (musicPlaying) {
+    musicPlaying = false;
+    clearTimeout(musicTimer);
+  } else {
+    musicPlaying = true;
+    playPhrase();
+  }
+  updateUI();
 });
 
-function bindHold(id,key){
-  var el=document.getElementById(id);
-  var start=function(e){e.preventDefault();keys[key]=true;};
-  var end=function(e){e.preventDefault();keys[key]=false;};
-  el.addEventListener('touchstart',start);
-  el.addEventListener('touchend',end);
-  el.addEventListener('touchcancel',end);
-  el.addEventListener('mousedown',start);
-  el.addEventListener('mouseup',end);
-  el.addEventListener('mouseleave',end);
-}
-bindHold('left','l');
-bindHold('right','r');
+// ==== ПЕРЕКЛЮЧЕНИЕ ЯЗЫКА ====
+const langOrder = ["jp", "ru", "en"];
+const langLabels = { jp: "日本語", ru: "РУС", en: "ENG" };
 
-document.getElementById('atk').addEventListener('click',attack);
-document.getElementById('atk').addEventListener('touchstart',function(e){e.preventDefault();attack();});
-
-document.addEventListener('keydown',function(e){
-  if(e.code==='ArrowLeft')keys.l=true;
-  if(e.code==='ArrowRight')keys.r=true;
-  if(e.code==='Space'){e.preventDefault();attack();}
-});
-document.addEventListener('keyup',function(e){
-  if(e.code==='ArrowLeft')keys.l=false;
-  if(e.code==='ArrowRight')keys.r=false;
+langToggle.addEventListener('click', () => {
+  const currentIndex = langOrder.indexOf(lang);
+  const nextIndex = (currentIndex + 1) % langOrder.length;
+  lang = langOrder[nextIndex];
+  langToggle.textContent = langLabels[lang];
+  updateUI();
+  if (level < demons.length) {
+    startLevel();
+  }
 });
 
-loop();
+// ==== ЗАПУСК ====
+hitBtn.addEventListener('click', hit);
+nextBtn.addEventListener('click', nextLevel);
+updateUI();
+startLevel();
 </script>
+
 </body>
 </html>
