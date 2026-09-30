@@ -2,19 +2,29 @@
 <html lang="ja">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
 <title>富士撃 — 七つの巻物</title>
 <style>
+  html, body {
+    margin: 0;
+    padding: 0;
+    width: 100%;
+    height: 100%;
+    overflow-x: hidden;
+  }
   body {
     background: #1a1a2e url('IMG_1571.jpeg') no-repeat center center fixed;
     background-size: cover;
     color: #eee;
     font-family: 'Yu Mincho', 'Georgia', serif;
-    max-width: 720px;
-    margin: 0 auto;
-    padding: 15px;
     text-align: center;
     min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start;
+    padding: 10px 15px;
+    box-sizing: border-box;
   }
   body::before {
     content: '';
@@ -23,42 +33,46 @@
     background: rgba(10, 10, 25, 0.3);
     z-index: -1;
   }
-  h1 { color: #ffb7c5; font-size: 28px; margin-bottom: 4px; text-shadow: 2px 2px 4px #000; }
-  .subtitle { color: #ddd; font-size: 14px; margin-bottom: 10px; text-shadow: 1px 1px 3px #000; }
+  #game {
+    max-width: 720px;
+    width: 100%;
+  }
+  h1 { color: #ffb7c5; font-size: 26px; margin: 5px 0; text-shadow: 2px 2px 4px #000; }
+  .subtitle { color: #ddd; font-size: 13px; margin-bottom: 8px; text-shadow: 1px 1px 3px #000; }
   #langBar {
     display: flex;
     justify-content: flex-end;
     gap: 6px;
-    margin-bottom: 10px;
+    margin-bottom: 8px;
   }
   .langBtn {
     background: rgba(51,51,51,0.85);
     color: #ccc;
     border: 1px solid #666;
-    padding: 6px 14px;
-    font-size: 14px;
+    padding: 5px 12px;
+    font-size: 13px;
     border-radius: 6px;
     cursor: pointer;
     font-family: inherit;
   }
   .langBtn.active { background: #ffb7c5; color: #1a1a2e; border-color: #fff; }
-  #demon { font-size: 64px; margin: 20px 0; transition: opacity 0.5s; }
-  #demonName { font-size: 18px; color: #ffb7c5; margin-bottom: 10px; min-height: 24px; text-shadow: 2px 2px 4px #000; }
+  #demon { font-size: 54px; margin: 10px 0; transition: opacity 0.5s; }
+  #demonName { font-size: 16px; color: #ffb7c5; margin-bottom: 8px; min-height: 22px; text-shadow: 2px 2px 4px #000; }
   #seals {
     display: flex;
     justify-content: center;
-    gap: 12px;
-    margin: 20px 0;
+    gap: 10px;
+    margin: 12px 0;
   }
   .seal {
-    width: 46px;
-    height: 46px;
+    width: 42px;
+    height: 42px;
     border-radius: 50%;
     border: 3px solid #888;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 20px;
+    font-size: 18px;
     transition: all 0.3s;
     background: rgba(0,0,0,0.4);
   }
@@ -67,36 +81,36 @@
   button {
     background: #ffb7c5;
     border: none;
-    padding: 12px 24px;
-    font-size: 17px;
+    padding: 10px 20px;
+    font-size: 16px;
     border-radius: 8px;
     cursor: pointer;
-    margin: 5px;
+    margin: 4px;
     font-family: inherit;
   }
   button:disabled { background: #555; cursor: not-allowed; }
   #log {
     background: rgba(15, 15, 26, 0.85);
-    padding: 15px;
+    padding: 12px;
     border-radius: 8px;
-    margin: 20px 0;
-    min-height: 70px;
+    margin: 12px 0;
+    min-height: 60px;
     text-align: left;
-    font-size: 15px;
-    line-height: 1.6;
+    font-size: 14px;
+    line-height: 1.5;
   }
   #scroll {
     background: #f5e6c8;
     color: #2a1a0a;
-    padding: 30px;
+    padding: 25px;
     border-radius: 5px;
-    margin: 20px 0;
+    margin: 15px 0;
     font-style: italic;
     display: none;
     line-height: 2;
-    min-height: 120px;
+    min-height: 100px;
     text-align: center;
-    font-size: 18px;
+    font-size: 17px;
   }
   #scroll .line {
     opacity: 0;
@@ -106,49 +120,65 @@
   #map {
     display: flex;
     justify-content: center;
-    gap: 6px;
-    margin: 15px 0;
+    gap: 5px;
+    margin: 10px 0;
     flex-wrap: wrap;
   }
   .map-point {
-    width: 34px;
-    height: 34px;
+    width: 32px;
+    height: 32px;
     border-radius: 50%;
     background: rgba(51,51,51,0.8);
     border: 2px solid #666;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 13px;
+    font-size: 12px;
     transition: all 0.4s;
   }
   .map-point.done { background: #ffb7c5; border-color: #fff; color: #1a1a2e; }
   .map-point.current { border-color: #ffb7c5; box-shadow: 0 0 10px #ffb7c5; }
-  .map-point.secret { border-color: #888; color: #888; font-size: 16px; }
+  .map-point.secret { border-color: #888; color: #888; font-size: 15px; }
+
+  /* Горизонтальный режим — компактнее */
+  @media (orientation: landscape) and (max-height: 500px) {
+    #demon { font-size: 40px; margin: 5px 0; }
+    h1 { font-size: 20px; }
+    .subtitle { font-size: 11px; margin-bottom: 4px; }
+    #seals { margin: 6px 0; gap: 8px; }
+    .seal { width: 36px; height: 36px; font-size: 16px; }
+    #log { font-size: 12px; padding: 8px; margin: 6px 0; min-height: 45px; }
+    button { padding: 8px 16px; font-size: 14px; }
+    #demonName { font-size: 14px; margin-bottom: 4px; }
+    #scroll { padding: 15px; font-size: 15px; }
+    .map-point { width: 28px; height: 28px; font-size: 11px; }
+  }
 </style>
 </head>
 <body>
 
-<h1>富士撃</h1>
-<div class="subtitle" id="subtitle">七つの巻物</div>
+<div id="game">
+  <h1>富士撃</h1>
+  <div class="subtitle" id="subtitle">七つの巻物</div>
 
-<div id="langBar">
-  <button id="langToggle" class="langBtn active">日本語</button>
+  <div id="langBar">
+    <button id="langToggle" class="langBtn active">日本語</button>
+  </div>
+
+  <div id="map"></div>
+
+  <div id="demon">👹</div>
+  <div id="demonName"></div>
+  <div id="seals"></div>
+
+  <div id="log"></div>
+
+  <button id="hitBtn"></button>
+  <button id="nextBtn" style="display:none"></button>
+  <button id="musicBtn"></button>
+
+  <div id="scroll"></div>
 </div>
-
-<div id="map"></div>
-
-<div id="demon">👹</div>
-<div id="demonName"></div>
-<div id="seals"></div>
-
-<div id="log"></div>
-
-<button id="hitBtn"></button>
-<button id="nextBtn" style="display:none"></button>
-<button id="musicBtn"></button>
-
-<div id="scroll"></div>
 
 <script>
 const T = {
@@ -223,8 +253,8 @@ const demons = [
     poem: { jp: "山は立つ —\n我も立つ。\n我らは共に永遠。", ru: "Гора стоит —\nи я стою.\nМы оба — вечны.", en: "The mountain stands —\nand I stand.\nWe are both eternal." }}
 ];
 
-// Нарастающая сложность: 35% → 70%
-const missRates = [0.35, 0.40, 0.45, 0.50, 0.55, 0.60, 0.70];
+// Нарастающая сложность: 35% → 80%
+const missRates = [0.35, 0.40, 0.45, 0.50, 0.55, 0.65, 0.80];
 
 let lang = "jp";
 let level = 0;
