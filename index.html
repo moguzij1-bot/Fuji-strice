@@ -6,16 +6,25 @@
 <title>富士撃 — 七つの巻物</title>
 <style>
   body {
-    background: #1a1a2e;
+    background: #1a1a2e url('IMG_1571.jpeg') no-repeat center center fixed;
+    background-size: cover;
     color: #eee;
     font-family: 'Yu Mincho', 'Georgia', serif;
     max-width: 720px;
     margin: 0 auto;
     padding: 15px;
     text-align: center;
+    min-height: 100vh;
   }
-  h1 { color: #ffb7c5; font-size: 28px; margin-bottom: 4px; }
-  .subtitle { color: #aaa; font-size: 14px; margin-bottom: 10px; }
+  body::before {
+    content: '';
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: rgba(10, 10, 25, 0.65);
+    z-index: -1;
+  }
+  h1 { color: #ffb7c5; font-size: 28px; margin-bottom: 4px; text-shadow: 2px 2px 4px #000; }
+  .subtitle { color: #ddd; font-size: 14px; margin-bottom: 10px; text-shadow: 1px 1px 3px #000; }
   #langBar {
     display: flex;
     justify-content: flex-end;
@@ -23,7 +32,7 @@
     margin-bottom: 10px;
   }
   .langBtn {
-    background: #333;
+    background: rgba(51,51,51,0.85);
     color: #ccc;
     border: 1px solid #666;
     padding: 6px 14px;
@@ -34,7 +43,7 @@
   }
   .langBtn.active { background: #ffb7c5; color: #1a1a2e; border-color: #fff; }
   #demon { font-size: 64px; margin: 20px 0; transition: opacity 0.5s; }
-  #demonName { font-size: 18px; color: #ffb7c5; margin-bottom: 10px; min-height: 24px; }
+  #demonName { font-size: 18px; color: #ffb7c5; margin-bottom: 10px; min-height: 24px; text-shadow: 2px 2px 4px #000; }
   #seals {
     display: flex;
     justify-content: center;
@@ -51,9 +60,10 @@
     justify-content: center;
     font-size: 20px;
     transition: all 0.3s;
+    background: rgba(0,0,0,0.4);
   }
   .seal.active { background: #ff4444; border-color: #ff8888; }
-  .seal.broken { background: #333; border-color: #555; color: #555; }
+  .seal.broken { background: rgba(50,50,50,0.6); border-color: #555; color: #555; }
   button {
     background: #ffb7c5;
     border: none;
@@ -66,7 +76,7 @@
   }
   button:disabled { background: #555; cursor: not-allowed; }
   #log {
-    background: #0f0f1a;
+    background: rgba(15, 15, 26, 0.85);
     padding: 15px;
     border-radius: 8px;
     margin: 20px 0;
@@ -104,7 +114,7 @@
     width: 34px;
     height: 34px;
     border-radius: 50%;
-    background: #333;
+    background: rgba(51,51,51,0.8);
     border: 2px solid #666;
     display: flex;
     align-items: center;
@@ -141,14 +151,11 @@
 <div id="scroll"></div>
 
 <script>
-// ==== ЯЗЫКОВЫЕ ДАННЫЕ ====
 const T = {
   jp: {
     subtitle: "七つの巻物",
-    hit: "斬る",
-    next: "次へ",
-    musicOn: "音楽を鳴らす",
-    musicOff: "音楽を止める",
+    hit: "斬る", next: "次へ",
+    musicOn: "音楽を鳴らす", musicOff: "音楽を止める",
     mapDays: ["月", "火", "水", "木", "金", "土", "日", "?"],
     win: "を倒した！ 印は巻物に織り込まれた。",
     startLevel: (day, name, el) => `⚔️ <b>${day}: ${name}</b>（${el}）が道を阻む。<br><b>五つの正確な打撃</b>が必要。外せば鬼は二、三の印を取り戻す。`,
@@ -162,10 +169,8 @@ const T = {
   },
   ru: {
     subtitle: "Семь свитков",
-    hit: "Ударить",
-    next: "Дальше",
-    musicOn: "Включить музыку",
-    musicOff: "Выключить музыку",
+    hit: "Ударить", next: "Дальше",
+    musicOn: "Включить музыку", musicOff: "Выключить музыку",
     mapDays: ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс", "?"],
     win: " побеждён! Печати вплетены в свиток.",
     startLevel: (day, name, el) => `⚔️ <b>${day}: ${name}</b> (${el}) преграждает путь.<br>Нужно нанести <b>5 точных ударов</b>. Промах — демон восстановит 2–3 печати.`,
@@ -179,10 +184,8 @@ const T = {
   },
   en: {
     subtitle: "Seven Scrolls",
-    hit: "Strike",
-    next: "Next",
-    musicOn: "Play Music",
-    musicOff: "Stop Music",
+    hit: "Strike", next: "Next",
+    musicOn: "Play Music", musicOff: "Stop Music",
     mapDays: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun", "?"],
     win: " defeated! The seals are woven into the scroll.",
     startLevel: (day, name, el) => `⚔️ <b>${day}: ${name}</b> (${el}) blocks the path.<br>You need <b>5 precise strikes</b>. A miss — the demon restores 2–3 seals.`,
@@ -196,69 +199,37 @@ const T = {
   }
 };
 
-// ==== ДЕМОНЫ ====
 const demons = [
   { day: 0, emoji: "👹", el: { jp: "火", ru: "Огонь", en: "Fire" },
     name: { jp: "鬼の鍛冶屋", ru: "Они-кузнец", en: "Oni Blacksmith" },
-    poem: {
-      jp: "火花は飛び —\n我心には\n冷たい夜明け。",
-      ru: "Искры летят —\nно в сердце моём\nхолодный рассвет.",
-      en: "Sparks fly —\nyet in my heart\na cold dawn."
-    }},
+    poem: { jp: "火花は飛び —\n我心には\n冷たい夜明け。", ru: "Искры летят —\nно в сердце моём\nхолодный рассвет.", en: "Sparks fly —\nyet in my heart\na cold dawn." }},
   { day: 1, emoji: "❄️", el: { jp: "氷", ru: "Лёд", en: "Ice" },
     name: { jp: "雪女", ru: "Юки-онна", en: "Yuki-onna" },
-    poem: {
-      jp: "氷は永遠ではない —\n春は来る\n雪の夜にも。",
-      ru: "Лёд не вечен —\nвесна придёт\nдаже в снежную ночь.",
-      en: "Ice is not eternal —\nspring will come\neven in a snowy night."
-    }},
+    poem: { jp: "氷は永遠ではない —\n春は来る\n雪の夜にも。", ru: "Лёд не вечен —\nвесна придёт\nдаже в снежную ночь.", en: "Ice is not eternal —\nspring will come\neven in a snowy night." }},
   { day: 2, emoji: "🌪️", el: { jp: "風", ru: "Ветер", en: "Wind" },
     name: { jp: "天狗の風", ru: "Тэнгу-ветер", en: "Tengu Wind" },
-    poem: {
-      jp: "風は払う\n余分なものを —\n道だけが残る。",
-      ru: "Ветер сдувает\nвсё лишнее —\nостаётся путь.",
-      en: "The wind sweeps away\neverything extra —\nonly the path remains."
-    }},
+    poem: { jp: "風は払う\n余分なものを —\n道だけが残る。", ru: "Ветер сдувает\nвсё лишнее —\nостаётся путь.", en: "The wind sweeps away\neverything extra —\nonly the path remains." }},
   { day: 3, emoji: "💧", el: { jp: "水", ru: "Вода", en: "Water" },
     name: { jp: "河童", ru: "Каппа-река", en: "Kappa of the River" },
-    poem: {
-      jp: "川は争わない\n石と —\nそれを回り込む。",
-      ru: "Река не спорит\nс камнем —\nона его обходит.",
-      en: "The river does not argue\nwith the stone —\nit flows around it."
-    }},
+    poem: { jp: "川は争わない\n石と —\nそれを回り込む。", ru: "Река не спорит\nс камнем —\nона его обходит.", en: "The river does not argue\nwith the stone —\nit flows around it." }},
   { day: 4, emoji: "🦊", el: { jp: "狐火", ru: "Огонь", en: "Foxfire" },
     name: { jp: "狐火", ru: "Кицунэ-огнь", en: "Kitsune Fire" },
-    poem: {
-      jp: "三つの尾は嘘をつく、\nしかし真実は一つ —\n我が刀。",
-      ru: "Три хвоста лгут,\nно правда одна —\nмой меч.",
-      en: "Three tails lie,\nbut the truth is one —\nmy blade."
-    }},
+    poem: { jp: "三つの尾は嘘をつく、\nしかし真実は一つ —\n我が刀。", ru: "Три хвоста лгут,\nно правда одна —\nмой меч.", en: "Three tails lie,\nbut the truth is one —\nmy blade." }},
   { day: 5, emoji: "👻", el: { jp: "闇", ru: "Тьма", en: "Darkness" },
     name: { jp: "浪人の亡霊", ru: "Ронин-призрак", en: "Ronin Ghost" },
-    poem: {
-      jp: "過去の影は\n我を縛らない —\n我は前へ進む。",
-      ru: "Тень прошлого\nне держит меня —\nя иду вперёд.",
-      en: "The shadow of the past\ndoes not hold me —\nI walk forward."
-    }},
+    poem: { jp: "過去の影は\n我を縛らない —\n我は前へ進む。", ru: "Тень прошлого\nне держит меня —\nя иду вперёд.", en: "The shadow of the past\ndoes not hold me —\nI walk forward." }},
   { day: 6, emoji: "🐉", el: { jp: "地", ru: "Земля", en: "Earth" },
     name: { jp: "富士の龍", ru: "Фудзи-дракон", en: "Fuji Dragon" },
-    poem: {
-      jp: "山は立つ —\n我も立つ。\n我らは共に永遠。",
-      ru: "Гора стоит —\nи я стою.\nМы оба — вечны.",
-      en: "The mountain stands —\nand I stand.\nWe are both eternal."
-    }}
+    poem: { jp: "山は立つ —\n我も立つ。\n我らは共に永遠。", ru: "Гора стоит —\nи я стою.\nМы оба — вечны.", en: "The mountain stands —\nand I stand.\nWe are both eternal." }}
 ];
 
-// ==== СОСТОЯНИЕ ====
 let lang = "jp";
 let level = 0;
 let brokenSeals = 0;
 let regenTimer = null;
-
 const maxSeals = 5;
 const sealsToWin = 5;
 
-// ==== ЭЛЕМЕНТЫ ====
 const demonEl = document.getElementById('demon');
 const demonNameEl = document.getElementById('demonName');
 const sealsEl = document.getElementById('seals');
@@ -271,38 +242,32 @@ const musicBtn = document.getElementById('musicBtn');
 const subtitleEl = document.getElementById('subtitle');
 const langToggle = document.getElementById('langToggle');
 
-// ==== ОТРИСОВКА ====
 function renderMap() {
   mapEl.innerHTML = '';
   const days = T[lang].mapDays;
   for (let i = 0; i < 8; i++) {
-    const point = document.createElement('div');
-    point.className = 'map-point';
-    if (i < level) point.classList.add('done');
-    if (i === level) point.classList.add('current');
-    if (i === 7) point.classList.add('secret');
-    point.textContent = i < level ? '巻' : days[i];
-    mapEl.appendChild(point);
+    const p = document.createElement('div');
+    p.className = 'map-point';
+    if (i < level) p.classList.add('done');
+    if (i === level) p.classList.add('current');
+    if (i === 7) p.classList.add('secret');
+    p.textContent = i < level ? '巻' : days[i];
+    mapEl.appendChild(p);
   }
 }
 
 function renderSeals() {
   sealsEl.innerHTML = '';
   for (let i = 0; i < maxSeals; i++) {
-    const seal = document.createElement('div');
-    seal.className = 'seal';
-    if (i < brokenSeals) {
-      seal.classList.add('broken');
-      seal.textContent = '✕';
-    } else {
-      seal.classList.add('active');
-      seal.textContent = '印';
-    }
-    sealsEl.appendChild(seal);
+    const s = document.createElement('div');
+    s.className = 'seal';
+    if (i < brokenSeals) { s.classList.add('broken'); s.textContent = '✕'; }
+    else { s.classList.add('active'); s.textContent = '印'; }
+    sealsEl.appendChild(s);
   }
 }
 
-function log(text) { logEl.innerHTML = text; }
+function log(t) { logEl.innerHTML = t; }
 
 function updateUI() {
   subtitleEl.textContent = T[lang].subtitle;
@@ -312,7 +277,6 @@ function updateUI() {
   renderMap();
 }
 
-// ==== ПОСТЕПЕННЫЙ СТИХ ====
 function showScroll(title, poem) {
   scrollEl.style.display = 'block';
   scrollEl.innerHTML = `<b>${title}</b><br><br>`;
@@ -326,7 +290,6 @@ function showScroll(title, poem) {
   });
 }
 
-// ==== БОЙ ====
 function startLevel() {
   const d = demons[level];
   const l = T[lang];
@@ -349,8 +312,7 @@ function startLevel() {
 function hit() {
   if (brokenSeals >= sealsToWin) return;
   const l = T[lang];
-  const miss = Math.random() < 0.3;
-
+  const miss = Math.random() < 0.8; // 80% промаха
   if (miss) {
     const regenAmount = Math.random() < 0.5 ? 2 : 3;
     brokenSeals = Math.max(0, brokenSeals - regenAmount);
@@ -370,9 +332,7 @@ function startRegen(amount) {
   const l = T[lang];
   let restored = 0;
   regenTimer = setInterval(() => {
-    if (restored >= amount) {
-      clearInterval(regenTimer); regenTimer = null; return;
-    }
+    if (restored >= amount) { clearInterval(regenTimer); regenTimer = null; return; }
     brokenSeals = Math.max(0, brokenSeals - 1);
     restored++;
     renderSeals();
@@ -388,7 +348,6 @@ function win() {
   const l = T[lang];
   demonEl.textContent = '🌸';
   log(`🎉 <b>${d.name[lang]}</b>${l.win}`);
-
   const day = l.mapDays[d.day];
   showScroll(l.scrollTitle(level + 1, day, d.name[lang]), d.poem[lang]);
   nextBtn.style.display = 'inline-block';
@@ -409,7 +368,6 @@ function nextLevel() {
   startLevel();
 }
 
-// ==== МУЗЫКА ====
 let audioCtx = null;
 let musicPlaying = false;
 let musicTimer = null;
@@ -435,8 +393,8 @@ function playNote(freq, dur, vol) {
 
 function playPhrase() {
   if (!musicPlaying) return;
-  const notesCount = 2 + Math.floor(Math.random() * 2);
-  for (let i = 0; i < notesCount; i++) {
+  const n = 2 + Math.floor(Math.random() * 2);
+  for (let i = 0; i < n; i++) {
     setTimeout(() => {
       if (!musicPlaying) return;
       const s = scale[Math.floor(Math.random() * scale.length)];
@@ -444,37 +402,28 @@ function playPhrase() {
       playNote(noteFreq(s + oct), 3, 0.08);
     }, i * 1200);
   }
-  musicTimer = setTimeout(playPhrase, notesCount * 1200 + 4000);
+  musicTimer = setTimeout(playPhrase, n * 1200 + 4000);
 }
 
 musicBtn.addEventListener('click', () => {
   if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
-  if (musicPlaying) {
-    musicPlaying = false;
-    clearTimeout(musicTimer);
-  } else {
-    musicPlaying = true;
-    playPhrase();
-  }
+  if (musicPlaying) { musicPlaying = false; clearTimeout(musicTimer); }
+  else { musicPlaying = true; playPhrase(); }
   updateUI();
 });
 
-// ==== ПЕРЕКЛЮЧЕНИЕ ЯЗЫКА ====
 const langOrder = ["jp", "ru", "en"];
 const langLabels = { jp: "日本語", ru: "РУС", en: "ENG" };
 
 langToggle.addEventListener('click', () => {
-  const currentIndex = langOrder.indexOf(lang);
-  const nextIndex = (currentIndex + 1) % langOrder.length;
-  lang = langOrder[nextIndex];
+  const ci = langOrder.indexOf(lang);
+  const ni = (ci + 1) % langOrder.length;
+  lang = langOrder[ni];
   langToggle.textContent = langLabels[lang];
   updateUI();
-  if (level < demons.length) {
-    startLevel();
-  }
+  if (level < demons.length) startLevel();
 });
 
-// ==== ЗАПУСК ====
 hitBtn.addEventListener('click', hit);
 nextBtn.addEventListener('click', nextLevel);
 updateUI();
